@@ -122,20 +122,7 @@ separators. Compact separators produce a different hash.
 - **Comparator.** Our dSBM is a reference implementation, not the authors'
   optimised version, which makes the near-parity result conservative.
 
-## Citation
 
-```bibtex
-@article{biller2026inversion,
-  title  = {Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
-            A Negative Result and a Reproducible Protocol},
-  author = {Biller, Shmuel Y.},
-  year   = {2026},
-  eprint = {XXXX.XXXXX},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.ET}
 }
 ```
 
-## License
-
-MIT — see [LICENSE](LICENSE).
