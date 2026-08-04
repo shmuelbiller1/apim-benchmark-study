@@ -1,0 +1,356 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{authblk}
+
+\title{Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:\\
+A Negative Result and a Reproducible Protocol}
+
+\author[1]{Shmuel Y.\ Biller}
+\affil[1]{Independent researcher}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We report a systematic simulation study of a measurement-feedback parametron
+Ising machine (an ``analog'' or coherent-Ising-machine-class solver) benchmarked
+against discrete Simulated Bifurcation (dSBM). Our central finding is
+methodological and negative: on identical instances at matched compute, the
+competitive verdict \emph{inverted twice} depending solely on which solver
+received parameter tuning. Untuned analog versus untuned digital gave dSBM a
+$5.9$--$7.4\times$ advantage; tuned analog versus untuned digital gave the
+analog machine a $2.3$--$6.8\times$ advantage; tuning both --- the only
+defensible comparison --- gave near-parity, and we further find that the
+\emph{sign} of the residual difference depends on how large a tuning grid each
+side receives. We argue that untuned baselines are a systemic hazard in
+this literature and propose a minimal protocol to avoid them. We additionally
+report: (i) a measured time-to-solution scaling of $\mathrm{TTS}\sim N^{2.115}$
+($95\%$ CI $[1.93,2.30]$, $\Delta\mathrm{AIC}=9.97$ favouring a power law over
+exponential growth); (ii) four algorithmic modifications yielding a compounded
+$\approx\!24\times$ improvement over a schedule frozen at small $N$, of which the
+largest arises from a parameter never previously varied; and (iii) an analysis
+showing that the architecture's operation-count advantage is negligible in
+measurement-feedback form, because the coupling multiply is digital in both
+machines. All simulation code, the hashed benchmark instance library, and the
+full result set are released.
+\end{abstract}
+
+\section{Introduction}
+
+Analog and physics-inspired Ising machines are widely proposed as accelerators
+for combinatorial optimization. Coherent Ising machines with measurement
+feedback have been demonstrated at large spin counts at room temperature, and a
+substantial literature reports favourable comparisons against digital solvers.
+
+A recurring weakness in such comparisons is that the proposed machine is
+typically tuned --- often extensively --- while the digital baseline is run at
+default or literature settings. We encountered this failure mode directly and
+severely: over the course of this study our own competitive conclusion reversed
+twice, purely as a function of which side had been tuned, before settling at
+near-parity. We report this as the primary result, because we believe it is
+common and largely unreported.
+
+We study a parametron (degenerate parametric oscillator) network with digital
+measurement feedback, the architecture of Goto's parametron \cite{goto1959}
+combined with the measurement-feedback scheme of modern coherent Ising machines
+\cite{inagaki2016,honjo2021} and Leleu-type amplitude error correction
+\cite{leleu2019}. Our digital comparator is discrete Simulated Bifurcation
+\cite{goto2019,goto2021}.
+
+Our contributions:
+\begin{enumerate}
+\item A demonstration that benchmark verdicts in this class invert under tuning,
+      with the full sequence documented (Sec.~\ref{sec:tuning}).
+\item A properly controlled near-parity result (Sec.~\ref{sec:parity}).
+\item A measured scaling law with confidence intervals and model comparison
+      (Sec.~\ref{sec:scaling}).
+\item Four algorithmic findings, including one apparently novel method
+      (Sec.~\ref{sec:algo}).
+\item An operation-count analysis identifying where, if anywhere, an advantage
+      can exist for this architecture (Sec.~\ref{sec:where}).
+\end{enumerate}
+
+We emphasise at the outset that all results here are simulation. No hardware was
+built. Claims about physical implementations are explicitly labelled as
+projections in Sec.~\ref{sec:limits}.
+
+\section{Methods}
+
+\subsection{Model}
+Each spin $i$ is represented by a slow amplitude envelope $x_i$ obeying a
+rotating-frame stochastic differential equation, integrated by Euler--Maruyama:
+\begin{align}
+dx_i &= \left[(p(t)-1-x_i^2)x_i + \epsilon f_i\right]dt + \sigma\,dW_i,\\
+f_i  &= e_i \sum_j \tilde J_{ij}\,x_j(t-\tau_{\text{lag}}),\\
+de_i &= -\beta e_i (x_i^2 - a(t))\,dt, \qquad a(t)=\max(p(t)-1,\,0.05),
+\end{align}
+where $p(t)$ is the pump ramp, $\tilde J$ is row-sum normalised, $e_i$ are
+Leleu-style amplitude error-correction variables, and the feedback uses a
+measurement delayed by one update interval. Spins are read out as
+$s_i=\mathrm{sign}(x_i)$.
+
+\subsection{Comparator}
+Discrete Simulated Bifurcation \cite{goto2021} with inelastic walls
+($|x|\le 1$, momentum reset on contact) and $\mathrm{sign}(x)$ coupling, using a
+standard coupling normalisation.
+
+\subsection{Cost metric}
+We count \emph{matrix--vector products} (equivalently, multiply--accumulate
+operations), not wall-clock time or integration steps. This is the fair unit
+because it is the dominant work in both algorithms and, critically, is performed
+digitally in both: the analog machine's coupling field is computed on an FPGA and
+dSBM's on a GPU. Time-to-solution is
+$\mathrm{TTS}_{99}=C\ln(0.01)/\ln(1-p)$, with $C$ the cost of one anneal and $p$
+the per-anneal success probability.
+
+\subsection{Instances and reference}
+Dense random $\pm1$ Ising instances, $J_{ij}\in\{-1,+1\}$, $J_{ii}=0$. For
+$N\le22$ ground states were obtained by exhaustive enumeration; above that the
+reference is the best energy found across all runs of that instance. We verified
+this reference is not loose: on $80$ instances at $N=12,16,20,22$, the
+best-found energy equalled the exact ground state in every case (inflation factor
+$1.00$).
+
+\subsection{Statistics}
+Unless stated otherwise, $25$ instances per problem size, medians across
+instances, and bootstrap confidence intervals resampled over instances. Success
+probabilities are computed over $100$--$300$ independent anneals per instance.
+
+\section{Benchmark verdicts invert under tuning}
+\label{sec:tuning}
+
+Table~\ref{tab:invert} shows the same comparison, on the same instances, at
+matched matrix-multiply budget, evaluated three times during this study.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccl}
+\toprule
+Comparison & $N=32$ & $N=64$ & Status \\
+\midrule
+Untuned analog vs.\ untuned dSBM & dSBM $5.9\times$ & dSBM $7.4\times$ & analog untuned \\
+Tuned analog vs.\ untuned dSBM   & analog $6.8\times$ & analog $2.3\times$ & dSBM untuned \\
+\textbf{Both tuned}              & \multicolumn{2}{c}{\textbf{near-parity (see Sec.~4)}} & \textbf{defensible} \\
+\bottomrule
+\end{tabular}
+\caption{The competitive verdict inverts twice depending only on which solver is
+tuned. Only the third row is a defensible comparison. Both solvers turned out to
+be running substantially longer than optimal in the first two rows.}
+\label{tab:invert}
+\end{table}
+
+The magnitude matters: the first two rows differ by a factor of roughly $40$ at
+$N=32$ and would support opposite conclusions in a paper abstract. Neither was
+produced dishonestly; each was the result of tuning one side and not the other,
+which is the default outcome when a research group benchmarks its own system
+against a literature baseline.
+
+\paragraph{Proposed minimal protocol.}
+We adopt, and suggest, the following rule: \emph{no comparison is reportable
+unless the same tuning budget has been applied to every algorithm in it, and the
+settings used for each are stated alongside the result, together with the size
+of the parameter grid searched for each.} An untuned baseline is not a
+baseline, and a tuned baseline whose search budget is unstated is only
+marginally better (Sec.~\ref{sec:parity}). We further recommend counting cost in operations rather than
+wall-clock time, since wall-clock comparisons across substrates conflate
+algorithmic quality with implementation effort.
+
+\section{Near-parity result}
+\label{sec:parity}
+
+With run length optimised for both solvers, the two methods are at near-parity.
+We deliberately do not report a single ratio here, because the residual
+difference proved smaller than the effect of the tuning grid itself: two
+independent tuning efforts on the same instance family gave dSBM ahead by
+$1.13\times$ at $N=32$ in one case, and the analog machine ahead by $1.72\times$
+in the other, with an exact tie at $N=64$. Both efforts searched comparable but
+not identical grids.
+
+We treat this as a second-order instance of the paper's main finding rather
+than a contradiction of it: if the sign of a competitive verdict can be changed
+by the size of a tuning grid, a single reported ratio from a single tuning
+effort carries little information. The defensible claim is near-parity, and any
+stronger claim in either direction requires the tuning budget searched --- not
+only the final settings --- to be reported alongside the result. Fitted scaling
+exponents under equal tuning are $N^{2.72}$ (analog) versus $N^{2.32}$ (dSBM),
+so the deficit widens slowly with problem size.
+
+We regard near-parity against a mature, corporate-refined production algorithm as
+a substantive result for an architecture that does not physically exist. We also
+regard it as insufficient to support an energy claim, for reasons given in
+Sec.~\ref{sec:where}.
+
+\section{Scaling}
+\label{sec:scaling}
+
+Time-to-solution was measured at six sizes ($N=8$--$64$), $25$ instances each,
+with anneal length optimised independently at every size
+(Table~\ref{tab:scaling}).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrrr}
+\toprule
+$N$ & Optimal anneal & $p$ at optimum & TTS (matmuls) & Local slope \\
+\midrule
+8  & 3{,}000  & 0.97 & 394    & --- \\
+16 & 3{,}000  & 0.51 & 1{,}937  & 2.30 \\
+24 & 10{,}000 & 0.75 & 3{,}322  & 1.33 \\
+32 & 10{,}000 & 0.52 & 6{,}274  & 2.21 \\
+48 & 10{,}000 & 0.27 & 14{,}633 & 2.09 \\
+64 & 10{,}000 & 0.11 & 39{,}518 & 3.45 \\
+\bottomrule
+\end{tabular}
+\caption{Scaling scan, $25$ instances per size.}
+\label{tab:scaling}
+\end{table}
+
+A power law fits substantially better than an exponential:
+$\mathrm{TTS}\sim N^{2.115}$ (bootstrap $95\%$ CI $[1.93,2.30]$,
+$\mathrm{AIC}=-18.21$) versus $\mathrm{TTS}\sim\exp(0.0748N)$
+($\mathrm{AIC}=-8.24$). With $\Delta\mathrm{AIC}=9.97$ the exponential model has
+relative likelihood $\approx 0.007$. Growth over the measured range is therefore
+polynomial.
+
+Two caveats. First, the local slope in the final interval ($48\to64$) is $3.45$,
+the steepest in the scan; this is consistent either with noise at $25$ instances
+or with genuine curvature, and data ending at $N=64$ cannot distinguish them.
+Second, exponent estimates converged only as instance count rose
+($2.48\to2.11\to2.01\to2.115$ at $3,5,10,25$ instances), with the confidence
+interval halving between $10$ and $25$. We recommend $\ge 25$ instances per size
+for scaling claims in this class.
+
+\section{Algorithmic findings}
+\label{sec:algo}
+
+Four parameters that had been fixed by inheritance rather than measurement
+yielded substantial gains (Table~\ref{tab:algo}).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Modification & Gain & Note \\
+\midrule
+Update interval $10\to100$      & $\approx8\times$   & Physics between updates is free \\
+Inelastic wall at $0.4A$        & $\approx2\times$   & Adopted from dSBM; one limiter per cell \\
+Ramp exponent $\gamma=1\to5$    & $\approx2\times$   & Zero cost; waveform change only \\
+Confidence-gated feedback       & $1.45$--$1.94\times$ & Novel; $N\le64$ only \\
+\bottomrule
+\end{tabular}
+\caption{Algorithmic modifications, each measured with the comparator held fixed.}
+\label{tab:algo}
+\end{table}
+
+\paragraph{Confidence-gated feedback.}
+Once a spin's amplitude is pinned at the limiter and its sign has been stable
+across consecutive updates, its contribution to every other spin's field is
+constant. We compute it once, add it to a cached vector, and remove the spin from
+the active set; the matrix multiply then runs over active spins only and shrinks
+as the anneal proceeds. This exploits a property specific to analog machines ---
+amplitude carries a confidence signal that a purely binary solver does not
+possess. Measured MAC reduction is $2.0$--$2.2\times$ with a net TTS improvement
+of $1.45$--$1.94\times$ at $N\le64$. The method fails at $N=128$, where baseline
+success probability is already $0.01$ and premature freezing destroys the
+remaining chance.
+
+Two further variants were tested and closed: parallel tempering across the batch
+axis ($0.64$--$0.68\times$, worse) and cyclic pumping ($\le0.13\times$, much
+worse). Predictive extrapolation of the feedback was strongly harmful
+($p:0.805\to0.105$), as it amplifies measurement noise.
+
+\section{Where an advantage can and cannot exist}
+\label{sec:where}
+
+In measurement-feedback form the coupling product $Jx$ is computed digitally, on
+an FPGA, exactly as dSBM computes it on a GPU. There is therefore no
+per-operation energy advantage available to offset an operation-count deficit,
+and Sec.~\ref{sec:parity} shows there is no operation-count surplus either. We
+conclude that the measurement-feedback architecture has no defensible energy
+claim on dense problems, and we note that energy comparisons in this literature
+frequently assume operation parity without testing it.
+
+The remaining possibility is architectural. If the coupling is physically wired
+rather than computed --- possible when $J$ is fixed and sparse --- the anneal
+requires no digital work at all beyond readout. Under that assumption we compute
+a $150$--$180\times$ reduction in digital operations on lattice instances.
+Separately, we verified in simulation that such an array anneals successfully
+\emph{without} measurement feedback or amplitude error correction, which the
+wired configuration cannot support: autonomous operation matched or exceeded
+measurement feedback on lattice instances ($p=0.292$ vs.\ $0.254$ at $64$ spins).
+
+We stress that this is an architectural analysis, not a measurement of hardware.
+
+\section{Limitations}
+\label{sec:limits}
+
+\begin{itemize}
+\item \textbf{All results are simulation.} No hardware was constructed. Every
+      statement about physical implementations, settling times, or energy is a
+      projection from the model.
+\item \textbf{Arm A versus Arm B is untested.} The central hypothesis of this
+      architecture class --- that physical analog dynamics outperforms a digital
+      simulation of the same dynamics --- cannot be evaluated without hardware
+      and is not evaluated here.
+\item \textbf{Instance class.} All dense results use random $\pm1$ instances;
+      structured, sparse, and application-derived instances may rank algorithms
+      differently.
+\item \textbf{Comparator implementation.} Our dSBM is a reference
+      implementation, not the authors' optimised version, and may understate
+      its performance.
+\item \textbf{Sizes.} Scaling data ends at $N=64$; extrapolation beyond that is
+      not evidence.
+\end{itemize}
+
+\section{Conclusion}
+
+The competitive standing of an analog Ising machine against a tuned digital
+solver, on dense random instances, is near-parity --- and we could have reported
+either a large win or a large loss from the same data by tuning one side. We
+believe this is the most useful thing we can contribute: the field should treat
+untuned baselines as a defect, state tuning budgets explicitly, and count cost in
+operations. We release all code, instances and results so that our numbers can be
+checked and our errors found.
+
+\section*{Data and code availability}
+All simulation code, the benchmark instance library (100 instances, $N=8$, with
+brute-forced ground states, SHA-256
+\texttt{b8c6050b2edf1ed40d02ae97e0e37b39ea60661822ccc5afa3c40cfdf3c48812}),
+and the complete result set are available at
+\url{https://github.com/USERNAME/REPOSITORY}.
+
+\section*{Acknowledgements}
+Portions of the simulation code, analysis and manuscript preparation were carried
+out with assistance from a large language model (Anthropic Claude). All
+experimental design decisions, result interpretation and conclusions are the
+author's responsibility. Several errors in intermediate analyses, including two
+of the three benchmark verdicts reported in Table~\ref{tab:invert}, were
+identified and corrected during this process; the sequence is retained in the
+paper deliberately.
+
+\begin{thebibliography}{9}
+\bibitem{goto1959} E.~Goto, ``The parametron, a digital computing element which
+utilizes parametric oscillation,'' \emph{Proc.\ IRE}, 1959.
+\bibitem{inagaki2016} T.~Inagaki \emph{et al.}, ``A coherent Ising machine for
+2000-node optimization problems,'' \emph{Science} \textbf{354}, 603 (2016).
+\bibitem{honjo2021} T.~Honjo \emph{et al.}, ``100,000-spin coherent Ising
+machine,'' \emph{Science Advances} \textbf{7}, eabh0952 (2021).
+\bibitem{leleu2019} T.~Leleu \emph{et al.}, ``Destabilization of local minima in
+analog spin systems by correction of amplitude heterogeneity,''
+\emph{Phys.\ Rev.\ Lett.} \textbf{122}, 040607 (2019).
+\bibitem{goto2019} H.~Goto \emph{et al.}, ``Combinatorial optimization by
+simulating adiabatic bifurcations in nonlinear Hamiltonian systems,''
+\emph{Science Advances} \textbf{5}, eaav2372 (2019).
+\bibitem{goto2021} H.~Goto \emph{et al.}, ``High-performance combinatorial
+optimization based on classical mechanics,'' \emph{Science Advances} \textbf{7},
+eabe7953 (2021).
+\end{thebibliography}
+
+\end{document}
