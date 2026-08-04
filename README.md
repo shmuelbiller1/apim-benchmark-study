@@ -4,8 +4,7 @@ Code, benchmark instances and results for the paper:
 
 > **Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
 > A Negative Result and a Reproducible Protocol**
-> Shmuel Y. Biller — arXiv:XXXX.XXXXX
-
+> Shmuel Y. Biller 
 ## The result in one table
 
 We benchmarked a measurement-feedback parametron Ising machine against discrete
