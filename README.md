@@ -4,7 +4,8 @@ Code, benchmark instances and results for the paper:
 
 > **Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
 > A Negative Result and a Reproducible Protocol**
-> Shmuel Y. Biller 
+> Shmuel Y. Biller, Independent researcher
+
 ## The result in one table
 
 We benchmarked a measurement-feedback parametron Ising machine against discrete
@@ -72,7 +73,8 @@ final settings.
 | `apim_twin.py` | Simulation model (parametron dynamics + measurement feedback + AEC) |
 | `apim_cloud_study.py` | Three larger studies: scaling, reference quality, competitive baseline |
 | `apim_instances_v1.json` | 100 dense ±1 instances, N=8, with brute-forced ground states |
-| `results/` | Raw results from the runs reported in the paper |
+| `paper.pdf` | The paper (compiled) |
+| `main.tex` | LaTeX source for the paper |
 
 ## Running the larger studies
 
@@ -122,7 +124,6 @@ separators. Compact separators produce a different hash.
 - **Comparator.** Our dSBM is a reference implementation, not the authors'
   optimised version, which makes the near-parity result conservative.
 
+## License
 
-}
-```
-
+MIT — see [LICENSE](LICENSE).
