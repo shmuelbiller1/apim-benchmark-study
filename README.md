@@ -49,6 +49,14 @@ single reported ratio from a single tuning effort should not be trusted. Readers
 reproducing this work should expect the third row to land near 1× and should not
 expect to recover our exact ratios.
 
+The same caveat applies, less consequentially, to the first two rows. The paper
+reports dSBM ahead by 5.9–7.4× against an untuned analog machine;
+`reproduce_inversion.py` reports 19.4× at N=32 and 52.4× at N=64 against *its*
+untuned configuration. The direction is identical and so is the conclusion — an
+untuned solver loses badly — but the magnitude depends on how untuned "untuned"
+is, which is itself an artefact of tuning budget. **Read the sign of the first
+two rows as the result; do not read the ratios as one.**
+
 Anyone extending this work should report the tuning grid searched, not only the
 final settings.
 
@@ -65,6 +73,18 @@ final settings.
 - **Reference quality verified:** on 80 instances at N=12–22, the best-found
   energy equalled the exact enumerated ground state in every case.
 
+## The machine that was being evaluated
+
+This benchmark exists because of a hardware proposal: a network of parametron
+cells — small electronic oscillators pumped at twice their resonant frequency,
+each settling into one of two phases — as a room-temperature, off-the-shelf
+alternative to D-Wave's refrigerated annealer and NTT's laser-based Coherent
+Ising Machine. Roughly $550 for the smallest working version.
+
+It was never built. The benchmark above is why. The full design — cell
+schematic, bill of materials, coupling scheme, build ladder, and the one part of
+the idea that survives the negative result — is in [DESIGN.md](DESIGN.md).
+
 ## Contents
 
 | File | Description |
@@ -75,6 +95,7 @@ final settings.
 | `apim_instances_v1.json` | 100 dense ±1 instances, N=8, with brute-forced ground states |
 | `paper.pdf` | The paper (compiled) |
 | `main.tex` | LaTeX source for the paper |
+| `DESIGN.md` | The hardware design this study was built to evaluate, and why it was not built |
 
 ## Running the larger studies
 
@@ -123,6 +144,25 @@ separators. Compact separators produce a different hash.
   sparse instances may rank algorithms differently.
 - **Comparator.** Our dSBM is a reference implementation, not the authors'
   optimised version, which makes the near-parity result conservative.
+
+## Citation
+
+If you use this code or the instance library, please cite the repository:
+
+```bibtex
+@software{biller2026inversion,
+  title  = {Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
+            A Negative Result and a Reproducible Protocol},
+  author = {Biller, Shmuel Y.},
+  year   = {2026},
+  url    = {https://github.com/shmuelbiller1/apim-benchmark-study}
+}
+```
+
+There is no DOI yet. Tagging a release with Zenodo enabled for this repository
+mints one; once it exists, add a `doi` field to the entry above and uncomment
+the `doi:` line in [`CITATION.cff`](CITATION.cff). Until then, cite the
+repository URL and, if the exact state matters, the commit hash.
 
 ## License
 

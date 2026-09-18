@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Benchmark Verdicts for Analog Ising Machines Invert Under Tuning: A Negative Result and a Reproducible Protocol"
+abstract: >-
+  A systematic simulation study of a measurement-feedback parametron Ising
+  machine benchmarked against discrete Simulated Bifurcation. The competitive
+  verdict inverts twice depending solely on which solver receives parameter
+  tuning; tuning both gives near-parity. Includes the hashed benchmark instance
+  library and a script reproducing the inversion.
+type: software
+authors:
+  - family-names: "Biller"
+    given-names: "Shmuel Y."
+    affiliation: "Independent researcher"
+license: MIT
+repository-code: "https://github.com/shmuelbiller1/apim-benchmark-study"
+keywords:
+  - Ising machine
+  - combinatorial optimization
+  - simulated bifurcation
+  - benchmarking
+  - negative result
+  - reproducibility
+# Once a tagged release is archived by Zenodo, fill these in:
+# doi: "10.5281/zenodo.NNNNNNN"
+# version: "1.0"
+# date-released: "YYYY-MM-DD"
