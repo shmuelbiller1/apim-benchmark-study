@@ -21,7 +21,6 @@ keywords:
   - benchmarking
   - negative result
   - reproducibility
-# Once a tagged release is archived by Zenodo, fill these in:
-# doi: "10.5281/zenodo.NNNNNNN"
-# version: "1.0"
-# date-released: "YYYY-MM-DD"
+doi: "10.5281/zenodo.22833988"
+version: "v1.0.0"
+date-released: 2026-09-18

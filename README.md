@@ -1,5 +1,7 @@
 # Benchmark Verdicts for Analog Ising Machines Invert Under Tuning
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22833988.svg)](https://doi.org/10.5281/zenodo.22833988)
+
 Code, benchmark instances and results for the paper:
 
 > **Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
@@ -147,22 +149,26 @@ separators. Compact separators produce a different hash.
 
 ## Citation
 
-If you use this code or the instance library, please cite the repository:
+This work is archived on Zenodo with a permanent DOI:
+
+**[10.5281/zenodo.22833988](https://doi.org/10.5281/zenodo.22833988)**
 
 ```bibtex
 @software{biller2026inversion,
-  title  = {Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
-            A Negative Result and a Reproducible Protocol},
-  author = {Biller, Shmuel Y.},
-  year   = {2026},
-  url    = {https://github.com/shmuelbiller1/apim-benchmark-study}
+  title     = {Benchmark Verdicts for Analog Ising Machines Invert Under Tuning:
+               A Negative Result and a Reproducible Protocol},
+  author    = {Biller, Shmuel Y.},
+  year      = {2026},
+  version   = {v1.0.0},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22833988},
+  url       = {https://doi.org/10.5281/zenodo.22833988}
 }
 ```
 
-There is no DOI yet. Tagging a release with Zenodo enabled for this repository
-mints one; once it exists, add a `doi` field to the entry above and uncomment
-the `doi:` line in [`CITATION.cff`](CITATION.cff). Until then, cite the
-repository URL and, if the exact state matters, the commit hash.
+If you are citing a specific number rather than the work as a whole, cite the
+commit hash too — the both-tuned ratio depends on the tuning grid, as described
+above.
 
 ## License
 
