@@ -13,8 +13,11 @@ one CPU core.
     python3 reproduce_inversion.py
 
 Expected output: three verdicts from the same instances at matched compute --
-dSBM ahead, then APIM ahead, then dSBM ahead by a small margin. Only the third
-(both solvers tuned) is a defensible comparison.
+dSBM well ahead, then APIM ahead, then near-parity. Only the third (both
+solvers tuned) is a defensible comparison, and its sign is not stable across
+tuning grids: on this grid it lands APIM ahead 1.72x at N=32 and an exact tie
+at N=64, while the paper's grid puts dSBM ahead 1.13x at N=32. Expect the
+third row near 1x; do not expect to recover an exact ratio.
 """
 import numpy as np
 import time
